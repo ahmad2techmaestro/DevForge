@@ -1,0 +1,17 @@
+{
+  "id": "py-05-stack-empty",
+  "kind": "bugfix",
+  "language": "python",
+  "title": "Stack.pop on empty stack should raise EmptyStackError",
+  "description": "In stack.py, Stack.pop() and Stack.peek() currently leak an IndexError when the stack is empty. They must raise the module's EmptyStackError (define it as a subclass of Exception) instead. Add a `size` property returning the number of items.",
+  "verify": [
+    "python",
+    "-m",
+    "pytest",
+    "-q",
+    "-p",
+    "no:cacheprovider",
+    "--color=no",
+    "tests"
+  ]
+}

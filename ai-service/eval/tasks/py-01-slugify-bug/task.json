@@ -1,0 +1,17 @@
+{
+  "id": "py-01-slugify-bug",
+  "kind": "bugfix",
+  "language": "python",
+  "title": "Fix slugify handling of repeated separators",
+  "description": "slugify() in slug.py should lowercase text, replace every run of non-alphanumeric characters with a single '-', and strip leading/trailing '-'. Currently 'Hello,  World!' and similar inputs produce wrong output. Fix it so the tests pass.",
+  "verify": [
+    "python",
+    "-m",
+    "pytest",
+    "-q",
+    "-p",
+    "no:cacheprovider",
+    "--color=no",
+    "tests"
+  ]
+}

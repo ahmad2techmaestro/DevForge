@@ -1,0 +1,11 @@
+{
+  "id": "js-01-capitalize-bug",
+  "kind": "bugfix",
+  "language": "javascript",
+  "title": "Fix capitalize() for multi-word and empty input",
+  "description": "capitalize(str) in strings.js should upper-case the first letter of every word and lower-case the rest ('hELLO wORLD' -> 'Hello World'). It must return '' for empty input and not crash. Words are separated by single spaces. Right now only the first letter of the string is handled.",
+  "verify": [
+    "node",
+    "--test"
+  ]
+}

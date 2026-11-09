@@ -1,0 +1,17 @@
+{
+  "id": "py-09-calc-dispatch-refactor",
+  "kind": "refactor",
+  "language": "python",
+  "title": "Refactor compute() into a dispatch table",
+  "description": "calc.py implements compute(op, a, b) with an if/elif chain. Refactor it to use a module-level dict named OPERATIONS mapping operation names ('add', 'sub', 'mul', 'div') to two-argument callables, and have compute() look operations up there. Behaviour changes requested together with the refactor: an unknown op must raise ValueError (it used to return None) and 'div' by zero must raise ZeroDivisionError as before. Existing results must not change.",
+  "verify": [
+    "python",
+    "-m",
+    "pytest",
+    "-q",
+    "-p",
+    "no:cacheprovider",
+    "--color=no",
+    "tests"
+  ]
+}

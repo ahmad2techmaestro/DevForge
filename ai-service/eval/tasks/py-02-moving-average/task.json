@@ -1,0 +1,17 @@
+{
+  "id": "py-02-moving-average",
+  "kind": "bugfix",
+  "language": "python",
+  "title": "Fix off-by-one in moving_average",
+  "description": "moving_average(values, window) must return the mean of every full window of `window` consecutive values (len(values)-window+1 results). It currently returns one result too few. Raise ValueError when window < 1 or window > len(values).",
+  "verify": [
+    "python",
+    "-m",
+    "pytest",
+    "-q",
+    "-p",
+    "no:cacheprovider",
+    "--color=no",
+    "tests"
+  ]
+}

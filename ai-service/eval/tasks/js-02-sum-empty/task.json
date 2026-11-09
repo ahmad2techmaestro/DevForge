@@ -1,0 +1,11 @@
+{
+  "id": "js-02-sum-empty",
+  "kind": "bugfix",
+  "language": "javascript",
+  "title": "sumNumbers crashes on empty arrays and ignores non-numbers",
+  "description": "sumNumbers(arr) in math.js must return 0 for an empty array and must ignore entries that are not finite numbers (strings, null, NaN, undefined). Currently it throws on an empty array and concatenates strings.",
+  "verify": [
+    "node",
+    "--test"
+  ]
+}

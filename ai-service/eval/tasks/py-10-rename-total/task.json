@@ -1,0 +1,17 @@
+{
+  "id": "py-10-rename-total",
+  "kind": "refactor",
+  "language": "python",
+  "title": "Rename calc_tot to total_price (keep a deprecated alias)",
+  "description": "In cart.py the function calc_tot(items) is badly named. Rename it to total_price(items) (same behaviour: sum of price*qty for dict items with 'price' and 'qty') and update every caller in the repo. Keep `calc_tot` importable as a thin alias that emits a DeprecationWarning when called and returns the same result. Also make total_price skip items whose qty is 0 or negative.",
+  "verify": [
+    "python",
+    "-m",
+    "pytest",
+    "-q",
+    "-p",
+    "no:cacheprovider",
+    "--color=no",
+    "tests"
+  ]
+}

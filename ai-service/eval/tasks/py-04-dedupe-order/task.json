@@ -1,0 +1,17 @@
+{
+  "id": "py-04-dedupe-order",
+  "kind": "bugfix",
+  "language": "python",
+  "title": "dedupe() must keep first-seen order",
+  "description": "dedupe(items) should remove duplicates while preserving the order of first appearance and must work for unhashable items such as lists. It currently loses order and crashes on lists.",
+  "verify": [
+    "python",
+    "-m",
+    "pytest",
+    "-q",
+    "-p",
+    "no:cacheprovider",
+    "--color=no",
+    "tests"
+  ]
+}

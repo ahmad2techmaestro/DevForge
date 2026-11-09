@@ -1,0 +1,17 @@
+{
+  "id": "py-07-greet-shout-flag",
+  "kind": "feature",
+  "language": "python",
+  "title": "Add --shout and --times options to the greet CLI",
+  "description": "greet.py exposes main(argv) which returns the greeting string. Extend main so that `--shout` upper-cases the whole greeting and `--times N` repeats the greeting N times joined by a single space (default 1). Options may appear before or after the name. An invalid --times (not a positive integer) must raise ValueError. Keep the default behaviour unchanged.",
+  "verify": [
+    "python",
+    "-m",
+    "pytest",
+    "-q",
+    "-p",
+    "no:cacheprovider",
+    "--color=no",
+    "tests"
+  ]
+}

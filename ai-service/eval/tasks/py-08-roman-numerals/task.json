@@ -1,0 +1,17 @@
+{
+  "id": "py-08-roman-numerals",
+  "kind": "feature",
+  "language": "python",
+  "title": "Implement to_roman and from_roman",
+  "description": "Create roman.py with to_roman(n) (1..3999 -> canonical Roman numeral, e.g. 1994 -> 'MCMXCIV') and from_roman(s) (inverse). Raise ValueError for out-of-range integers and for malformed numerals such as 'IIII', 'VX' or ''. from_roman(to_roman(n)) must equal n for every n in range.",
+  "verify": [
+    "python",
+    "-m",
+    "pytest",
+    "-q",
+    "-p",
+    "no:cacheprovider",
+    "--color=no",
+    "tests"
+  ]
+}

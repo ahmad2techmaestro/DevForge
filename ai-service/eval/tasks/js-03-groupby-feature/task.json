@@ -1,0 +1,11 @@
+{
+  "id": "js-03-groupby-feature",
+  "kind": "feature",
+  "language": "javascript",
+  "title": "Add groupBy and countBy helpers",
+  "description": "Add two exports to collections.js: groupBy(items, keyFn) returning an object mapping each key to the array of items (in original order) that produced it, and countBy(items, keyFn) returning an object mapping each key to the number of items. keyFn may be a function or a string property name. Both must return {} for an empty array.",
+  "verify": [
+    "node",
+    "--test"
+  ]
+}

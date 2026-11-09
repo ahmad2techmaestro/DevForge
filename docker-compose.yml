@@ -1,0 +1,96 @@
+# DevForge full stack. Run from the repository root:  docker compose up --build
+# The agent workspace is bind-mounted at the SAME absolute path on host and container so the
+# sandbox containers it launches through the Docker socket can mount the same files.
+name: devforge
+
+services:
+  mongo:
+    image: mongo:7
+    volumes: [mongo-data:/data/db]
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--eval", "db.runCommand({ping:1}).ok"]
+      interval: 10s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes: [redis-data:/data]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      retries: 10
+
+  agent:
+    build: ./ai-service
+    environment:
+      INTERNAL_KEY: ${INTERNAL_KEY:?set INTERNAL_KEY in .env}
+      LLM_PROVIDER: ${LLM_PROVIDER:-mock}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      ANTHROPIC_MODEL: ${ANTHROPIC_MODEL:-claude-sonnet-4-5}
+      OPENAI_MODEL: ${OPENAI_MODEL:-gpt-4.1}
+      GEMINI_API_KEY: ${GEMINI_API_KEY:-}
+      GROQ_API_KEY: ${GROQ_API_KEY:-}
+      OPENROUTER_API_KEY: ${OPENROUTER_API_KEY:-}
+      GEMINI_MODEL: ${GEMINI_MODEL:-}
+      GROQ_MODEL: ${GROQ_MODEL:-}
+      OPENROUTER_MODEL: ${OPENROUTER_MODEL:-}
+      OLLAMA_MODEL: ${OLLAMA_MODEL:-}
+      OPENAI_BASE_URL: ${OPENAI_BASE_URL:-}
+      OPENAI_COMPATIBLE_MODEL: ${OPENAI_COMPATIBLE_MODEL:-}
+      LLM_FAST_MODEL: ${LLM_FAST_MODEL:-}
+      EMBEDDING_MODEL: ${EMBEDDING_MODEL:-}
+      EMBEDDING_BASE_URL: ${EMBEDDING_BASE_URL:-}
+      EMBEDDING_API_KEY: ${EMBEDDING_API_KEY:-}
+      OTLP_ENDPOINT: ${OTLP_ENDPOINT:-}
+      EMBEDDING_PROVIDER: ${EMBEDDING_PROVIDER:-auto}
+      RERANK_PROVIDER: ${RERANK_PROVIDER:-auto}
+      RERANK_BASE_URL: ${RERANK_BASE_URL:-}
+      RERANK_API_KEY: ${RERANK_API_KEY:-}
+      RERANK_MODEL: ${RERANK_MODEL:-rerank-v3.5}
+      SANDBOX: ${SANDBOX:-docker}
+      WORKDIR: ${PWD}/data/agent
+    volumes:
+      - ${PWD}/data/agent:${PWD}/data/agent
+      - /var/run/docker.sock:/var/run/docker.sock   # SECURITY: grants the agent container Docker control. See README.
+    # Not published to the host: only the API talks to the agent.
+    expose: ["8000"]
+
+  api:
+    build: ./server
+    depends_on:
+      mongo: { condition: service_healthy }
+      redis: { condition: service_healthy }
+      agent: { condition: service_started }
+    environment:
+      NODE_ENV: production
+      DB_DRIVER: mongo
+      MONGO_URL: mongodb://mongo:27017
+      REDIS_URL: redis://redis:6379
+      AGENT_URL: http://agent:8000
+      API_PUBLIC_URL: http://api:4000
+      INTERNAL_KEY: ${INTERNAL_KEY:?set INTERNAL_KEY in .env}
+      JWT_SECRET: ${JWT_SECRET:?set JWT_SECRET in .env (32+ chars)}
+      ENCRYPTION_KEY: ${ENCRYPTION_KEY:?set ENCRYPTION_KEY in .env (64 hex chars)}
+      CORS_ORIGINS: ${WEB_ORIGIN:-http://localhost:8080}
+      WEB_ORIGIN: ${WEB_ORIGIN:-http://localhost:8080}
+      OAUTH_REDIRECT_BASE: ${PUBLIC_API_URL:-http://localhost:4000}
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-}
+      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET:-}
+      GITHUB_OAUTH_CLIENT_ID: ${GITHUB_OAUTH_CLIENT_ID:-}
+      GITHUB_OAUTH_CLIENT_SECRET: ${GITHUB_OAUTH_CLIENT_SECRET:-}
+      ALLOW_LOCAL_REPOS: "false"
+      GITHUB_WEBHOOK_SECRET: ${GITHUB_WEBHOOK_SECRET:-}
+    ports: ["4000:4000"]
+
+  client:
+    build: ./client
+    depends_on: [api]
+    environment:
+      PUBLIC_API_URL: ${PUBLIC_API_URL:-http://localhost:4000}
+    ports: ["8080:80"]
+
+volumes:
+  mongo-data:
+  redis-data:

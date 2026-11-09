@@ -1,0 +1,17 @@
+{
+  "id": "py-03-chunk-remainder",
+  "kind": "bugfix",
+  "language": "python",
+  "title": "chunk() drops the final partial chunk",
+  "description": "chunk(items, size) should split a list into lists of at most `size` items, keeping the last shorter chunk. Right now the remainder is lost. size < 1 must raise ValueError.",
+  "verify": [
+    "python",
+    "-m",
+    "pytest",
+    "-q",
+    "-p",
+    "no:cacheprovider",
+    "--color=no",
+    "tests"
+  ]
+}

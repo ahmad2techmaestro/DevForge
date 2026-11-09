@@ -1,0 +1,11 @@
+{
+  "id": "js-04-squares-refactor",
+  "kind": "refactor",
+  "language": "javascript",
+  "title": "Refactor sumSquares with a reusable squares() helper",
+  "description": "sumSquares(nums) in stats.js uses a var-based for loop. Refactor it to use Array methods and export a new helper squares(nums) that returns the array of squares; sumSquares must be implemented on top of squares(). Behaviour of sumSquares must not change, except that non-array input must now throw a TypeError.",
+  "verify": [
+    "node",
+    "--test"
+  ]
+}

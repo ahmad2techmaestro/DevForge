@@ -1,0 +1,17 @@
+{
+  "id": "py-06-inventory-remove",
+  "kind": "feature",
+  "language": "python",
+  "title": "Add Inventory.remove",
+  "description": "Add a method remove(sku, qty) to Inventory in inventory.py. It subtracts qty from the stock of sku. If the SKU is unknown or the stock is lower than qty, raise ValueError and leave the stock unchanged. When stock reaches exactly 0 the SKU should disappear from `skus()`, a new method returning a sorted list of SKUs that are in stock.",
+  "verify": [
+    "python",
+    "-m",
+    "pytest",
+    "-q",
+    "-p",
+    "no:cacheprovider",
+    "--color=no",
+    "tests"
+  ]
+}
