@@ -11,8 +11,8 @@ from langchain_core.messages import AIMessage, HumanMessage, SystemMessage
 from app.config import Settings
 from app.errors import ApiError
 from app.llm import observability
-from app.llm.gemini import GeminiInteractionsChatModel
 from app.llm.base import Brain, ChatResult, PlanResult, ReviewResult, WorkContext
+from app.llm.gemini import GeminiInteractionsChatModel
 from app.llm.loop import KEY_ENV, ainvoke, extract_json, model_label, run_tool_loop
 from app.llm.mock import MockBrain
 from app.llm.static_review import static_comments
