@@ -13,6 +13,7 @@ from app.config import Settings
 from app.errors import ApiError
 from app.llm import loop, observability
 from app.llm.base import WorkContext
+from app.llm.gemini import GeminiInteractionsChatModel
 from app.llm.loop import call_model, extract_json
 from app.llm.provider import (
     BASE_URLS,
@@ -71,7 +72,6 @@ async def emit(*_: object) -> None:
 @pytest.mark.parametrize(
     ("provider", "extra", "url_part"),
     [
-        ("gemini", {"gemini_api_key": "g-key-123456"}, "generativelanguage.googleapis.com/v1beta/openai"),
         ("groq", {"groq_api_key": "gsk_123456789"}, "api.groq.com/openai/v1"),
         ("openrouter", {"openrouter_api_key": "or-key-123456"}, "openrouter.ai/api/v1"),
         ("ollama", {}, "localhost:11434/v1"),
@@ -87,10 +87,15 @@ def test_build_model_wires_base_url(tmp_path: Path, provider: str, extra: dict[s
 
 
 def test_base_urls_table() -> None:
-    assert BASE_URLS["gemini"] == "https://generativelanguage.googleapis.com/v1beta/openai/"
     assert BASE_URLS["groq"] == "https://api.groq.com/openai/v1"
     assert BASE_URLS["openrouter"] == "https://openrouter.ai/api/v1"
     assert BASE_URLS["ollama"] == "http://localhost:11434/v1"
+
+
+def test_gemini_uses_the_native_sdk_model(tmp_path: Path) -> None:
+    m = build_model(cfg(tmp_path, llm_provider="gemini", gemini_api_key="g-key-123456"))
+    assert isinstance(m, GeminiInteractionsChatModel)
+    assert m.api_key == "g-key-123456" and m.model_name
 
 
 def test_ollama_base_url_override(tmp_path: Path) -> None:
@@ -115,7 +120,7 @@ def test_openai_compatible_requires_model(tmp_path: Path) -> None:
         build_model(cfg(tmp_path, openai_base_url="http://x/v1", openai_compatible_model=""))
 
 
-@pytest.mark.parametrize("provider", ["gemini", "groq", "openrouter"])
+@pytest.mark.parametrize("provider", ["groq", "openrouter"])
 async def test_hosted_providers_send_key_and_model(
     tmp_path: Path, fake: FakeOpenAI, monkeypatch: pytest.MonkeyPatch, provider: str
 ) -> None:

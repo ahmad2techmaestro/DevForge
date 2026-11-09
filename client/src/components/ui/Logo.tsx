@@ -6,7 +6,7 @@ const SEGMENTS = ['planner', 'engineer', 'qa', 'reviewer', 'release'] as const;
 export function LogoMark({ className }: { className?: string }) {
   return (
     <svg viewBox="0 0 32 32" className={clsx('h-7 w-7', className)} aria-hidden>
-      <rect width="32" height="32" rx="9" className="fill-fg" />
+      <rect width="32" height="32" rx="16" className="fill-fg" />
       {SEGMENTS.map((s, i) => (
         <rect key={s} x={6 + i * 4.2} y={21 - (i + 1) * 3} width="2.8" height={(i + 1) * 3 + 2} rx="1.4" style={{ fill: `rgb(var(--crew-${s}))` }} />
       ))}
