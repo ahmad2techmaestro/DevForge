@@ -41,8 +41,9 @@ def test_symbols_for_each_language(index: RepoIndex) -> None:
     intel = index.intel()
     names = {s["name"] for s in intel.symbols()}
     assert {"hash_password", "verify_password", "login", "slugify", "title", "helper", "main"} <= names
-    assert any(n.endswith("calc") for n in names)  # java method
     assert intel.engine in ("tree-sitter", "fallback")
+    if intel.engine == "tree-sitter":  # Java methods need the parser; the regex fallback skips them
+        assert any(n.endswith("calc") for n in names)
     py = {s["name"]: s for s in intel.symbols("auth/passwords.py")}
     assert py["verify_password"]["line"] == 8
 

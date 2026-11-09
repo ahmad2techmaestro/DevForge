@@ -31,7 +31,11 @@ def test_docker_image_choice() -> None:
     assert d.pick_image(["npm", "test"]) == "nd" and d.pick_image(["python", "-m", "pytest"]) == "py"
 
 
-async def test_docker_unavailable_here() -> None:
+async def test_docker_unavailable_when_cli_is_missing(monkeypatch) -> None:
+    async def no_docker(*_args, **_kwargs):
+        raise FileNotFoundError("docker")
+
+    monkeypatch.setattr("asyncio.create_subprocess_exec", no_docker)
     assert await docker_available(timeout=2.0) is False
 
 

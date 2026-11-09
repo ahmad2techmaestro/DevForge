@@ -15,7 +15,7 @@ const pts = Array.from({ length: N }, (_, i) => {
 });
 
 function accentRgb(): string {
-  const v = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim();
+  const v = getComputedStyle(document.documentElement).getPropertyValue('--mint').trim();
   return v ? v.split(/\s+/).join(',') : '110,150,255';
 }
 

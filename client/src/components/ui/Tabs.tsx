@@ -13,14 +13,13 @@ export interface TabLink {
 export function RouteTabs({ tabs, id }: { tabs: TabLink[]; id: string }) {
   return (
     <LayoutGroup id={id}>
-      <nav aria-label="Sections" className="-mb-px flex gap-1 overflow-x-auto border-b border-line">
+      <nav aria-label="Sections" className="no-scrollbar flex gap-1 overflow-x-auto rounded-full border border-white/70 bg-surface/50 p-1 shadow-panel backdrop-blur dark:border-white/10">
         {tabs.map((t) => (
           <NavLink key={t.to} to={t.to} end={t.end} className="relative shrink-0">
             {({ isActive }) => (
-              <span className={clsx('flex items-center gap-2 px-3 py-2.5 text-sm font-medium transition-colors', isActive ? 'text-fg' : 'text-muted hover:text-fg')}>
-                {t.icon}
-                {t.label}
-                {isActive && <motion.span layoutId="tab-underline" className="absolute inset-x-2 -bottom-px h-0.5 rounded-full bg-fg" />}
+              <span className={clsx('relative flex items-center gap-2 rounded-full px-3.5 py-2 text-sm font-medium transition-colors', isActive ? 'text-bg' : 'text-muted hover:text-fg')}>
+                {isActive && <motion.span layoutId="tab-pill" className="absolute inset-0 rounded-full bg-fg" transition={{ type: 'spring', stiffness: 420, damping: 34 }} />}
+                <span className="relative flex items-center gap-2">{t.icon}{t.label}</span>
               </span>
             )}
           </NavLink>
@@ -32,14 +31,14 @@ export function RouteTabs({ tabs, id }: { tabs: TabLink[]; id: string }) {
 
 export function SegmentedControl<T extends string>({ value, onChange, options, label }: { value: T; onChange: (v: T) => void; options: { value: T; label: string }[]; label: string }) {
   return (
-    <div role="radiogroup" aria-label={label} className="inline-flex rounded-lg border border-line-strong bg-raised p-0.5">
+    <div role="radiogroup" aria-label={label} className="inline-flex rounded-full border border-white/70 bg-surface/60 p-0.5 dark:border-white/10">
       {options.map((o) => (
         <button
           key={o.value}
           role="radio"
           aria-checked={value === o.value}
           onClick={() => onChange(o.value)}
-          className={clsx('rounded-md px-2.5 py-1 text-xs font-medium capitalize transition', value === o.value ? 'bg-overlay text-fg shadow-sm' : 'text-muted hover:text-fg')}
+          className={clsx('rounded-full px-3 py-1 text-xs font-medium capitalize transition', value === o.value ? 'bg-fg text-bg shadow-sm' : 'text-muted hover:text-fg')}
         >
           {o.label}
         </button>
