@@ -5,16 +5,20 @@ import httpx
 from tests.conftest import KEY, index_repo
 
 
-async def test_health_is_public(settings) -> None:
+async def test_health_is_public(settings, monkeypatch) -> None:
     from tests.conftest import running
 
+    async def no_docker(*_a, **_k) -> bool:
+        return False
+
+    monkeypatch.setattr("app.main.docker_available", no_docker)  # do not depend on the runner having Docker
     async with running(settings) as (_, app):
         async with httpx.AsyncClient(transport=httpx.ASGITransport(app=app), base_url="http://a") as anon:
             r = await anon.get("/health")
     body = r.json()
     assert r.status_code == 200
     assert body["status"] == "ok" and body["provider"] == "mock" and body["sandbox"] == "subprocess"
-    assert body["dockerAvailable"] is False  # no daemon in CI
+    assert body["dockerAvailable"] is False
 
 
 async def test_auth_required(settings) -> None:
