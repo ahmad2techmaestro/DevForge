@@ -24,6 +24,7 @@ and runs agent tasks that plan, code, test and review changes. You approve the p
 - [Quick start](#quick-start)
 - [Connect a real model](#connect-a-real-model)
 - [Optional integrations](#optional-integrations)
+- [Deploying](#deploying)
 - [Testing](#testing)
 - [Project layout](#project-layout)
 - [Design decisions](#design-decisions)
@@ -208,6 +209,19 @@ Use DevForge from Claude Desktop or Cursor (read-only, one repo per server):
 
 Signatures (`X-Hub-Signature-256`) are verified over the raw body with a constant-time compare. Without a secret the endpoint is disabled.
 </details>
+
+## Deploying
+
+A free demo setup: web client on Netlify, API and agent on Render, MongoDB on Atlas. The files `netlify.toml` and `render.yaml` hold the configuration.
+
+1. **MongoDB:** create a free cluster on [MongoDB Atlas](https://www.mongodb.com/atlas), add a database user, allow access from anywhere (Render's free IPs change), and copy the connection string.
+2. **Render:** New, Blueprint, pick this repository. Render asks for three values: `MONGO_URL` (step 1), `ENCRYPTION_KEY` (run `node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"`), and `GEMINI_API_KEY`. Everything else, including the shared internal key and JWT secret, is generated.
+3. **Netlify:** link this repository to the site. The build settings come from `netlify.toml`.
+4. Open the Netlify URL, create an account and connect a repository.
+
+The service names in `render.yaml` and `netlify.toml` decide the public URLs. If you rename them, update `AGENT_URL`, `API_PUBLIC_URL`, `OAUTH_REDIRECT_BASE`, `WEB_ORIGIN`, `CORS_ORIGINS` and `VITE_API_URL` to match.
+
+Free tiers sleep after 15 minutes without traffic, so the first request can take about a minute. Render has no Docker daemon, so the agent runs code in a local process **without isolation** (`SANDBOX=subprocess`). Treat this deployment as a private demo: do not share the URL widely and do not connect repositories that hold secrets. For real use, run the agent on a machine with Docker and `SANDBOX=docker`.
 
 ## Testing
 

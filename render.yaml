@@ -1,0 +1,84 @@
+# Render Blueprint for the DevForge API and agent. Deploy: Render dashboard -> New -> Blueprint -> pick this repo.
+# The web client is deployed separately on Netlify (see netlify.toml).
+#
+# Values you paste in the Render dashboard (marked sync: false below), never in git:
+#   MONGO_URL       MongoDB Atlas connection string
+#   ENCRYPTION_KEY  64 hex characters:  node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
+#   GEMINI_API_KEY  key from aistudio.google.com
+services:
+  - type: web
+    name: ahmad-devforge-api
+    runtime: docker
+    dockerfilePath: ./server/Dockerfile
+    dockerContext: ./server
+    plan: free
+    region: oregon
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: "4000"
+      - key: TRUST_PROXY
+        value: "1"
+      - key: ALLOW_LOCAL_REPOS
+        value: "false"
+      - key: DB_DRIVER
+        value: mongo
+      - key: MONGO_URL
+        sync: false
+      - key: REDIS_URL
+        fromService:
+          type: keyvalue
+          name: devforge-redis
+          property: connectionString
+      - key: AGENT_URL
+        value: https://ahmad-devforge-agent.onrender.com
+      - key: API_PUBLIC_URL
+        value: https://ahmad-devforge-api.onrender.com
+      - key: OAUTH_REDIRECT_BASE
+        value: https://ahmad-devforge-api.onrender.com
+      - key: WEB_ORIGIN
+        value: https://ahmad-devforge.netlify.app
+      - key: CORS_ORIGINS
+        value: https://ahmad-devforge.netlify.app
+      - key: INTERNAL_KEY
+        generateValue: true
+      - key: JWT_SECRET
+        generateValue: true
+      - key: ENCRYPTION_KEY
+        sync: false
+
+  - type: web
+    name: ahmad-devforge-agent
+    runtime: docker
+    dockerfilePath: ./ai-service/Dockerfile
+    dockerContext: ./ai-service
+    plan: free
+    region: oregon
+    healthCheckPath: /health
+    envVars:
+      - key: PORT
+        value: "8000"
+      - key: WORKDIR
+        value: /tmp/devforge
+      # Render has no Docker daemon, so code runs in a local process with NO isolation.
+      # Use this deployment for demos only. See "Deploying" in the README.
+      - key: SANDBOX
+        value: subprocess
+      - key: LLM_PROVIDER
+        value: gemini
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: INTERNAL_KEY
+        fromService:
+          type: web
+          name: ahmad-devforge-api
+          envVarKey: INTERNAL_KEY
+
+  - type: keyvalue
+    name: devforge-redis
+    plan: free
+    region: oregon
+    maxmemoryPolicy: noeviction
+    ipAllowList: []
