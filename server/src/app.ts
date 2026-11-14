@@ -5,6 +5,7 @@ import { rateLimit, ipKeyGenerator } from 'express-rate-limit';
 import helmet from 'helmet';
 import { pinoHttp } from 'pino-http';
 import type { Container } from './config/container.js';
+import { corsMatchers } from './config/env.js';
 import { AppError } from './utils/errors.js';
 import { requireAuth } from './middleware/http.js';
 import { accountRoutes, authRoutes } from './routes/account.js';
@@ -29,7 +30,7 @@ export function createApp(c: Container): Express {
   });
   app.use(pinoHttp({ logger: c.log, genReqId: (req) => (req as unknown as { id: string }).id, autoLogging: c.config.env !== 'test' }));
   app.use(helmet());
-  app.use(cors({ origin: c.config.corsOrigins, allowedHeaders: ['Authorization', 'Content-Type'], maxAge: 600 }));
+  app.use(cors({ origin: corsMatchers(c.config.corsOrigins), allowedHeaders: ['Authorization', 'Content-Type'], maxAge: 600 }));
   app.use(c.metrics.middleware());
   app.use(
     express.json({

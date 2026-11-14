@@ -39,9 +39,13 @@ services:
       - key: OAUTH_REDIRECT_BASE
         value: https://ahmad-devforge-api.onrender.com
       - key: WEB_ORIGIN
-        value: https://ahmad-devforge.netlify.app
+        value: https://devforget.vercel.app
+      # Comma separated. `*` works as a wildcard, e.g. https://devforget-*.vercel.app for previews.
       - key: CORS_ORIGINS
-        value: https://ahmad-devforge.netlify.app
+        value: https://devforget.vercel.app,https://devforget-*.vercel.app,https://ahmad-devforge.netlify.app
+      # The free agent sleeps when idle; allow time for it to wake up.
+      - key: AGENT_TIMEOUT_MS
+        value: "90000"
       - key: INTERNAL_KEY
         generateValue: true
       - key: JWT_SECRET
@@ -66,6 +70,11 @@ services:
       # Use this deployment for demos only. See "Deploying" in the README.
       - key: SANDBOX
         value: subprocess
+      # The free plan has 512 MB of memory. Larger repositories are indexed up to these limits.
+      - key: MAX_INDEX_FILES
+        value: "3000"
+      - key: MAX_INDEX_MB
+        value: "40"
       - key: LLM_PROVIDER
         value: gemini
       - key: GEMINI_API_KEY

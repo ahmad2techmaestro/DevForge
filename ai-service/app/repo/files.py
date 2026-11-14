@@ -9,8 +9,10 @@ from dataclasses import dataclass
 from pathlib import Path
 
 MAX_FILE_BYTES = 1_000_000
-MAX_TOTAL_BYTES = 150_000_000
-MAX_FILES = 20_000
+# Hosted plans have little memory (512 MB on Render's free tier). Lower these there with
+# MAX_INDEX_FILES and MAX_INDEX_MB; larger repositories are indexed up to the limit.
+MAX_TOTAL_BYTES = int(float(os.environ.get("MAX_INDEX_MB", "150")) * 1_000_000)
+MAX_FILES = int(os.environ.get("MAX_INDEX_FILES", "20000"))
 
 IGNORED_DIRS = frozenset(
     {
@@ -90,8 +92,10 @@ def safe_join(root: Path, rel: str) -> Path:
     return Path(target)
 
 
-def iter_repo(root: Path) -> Iterator[tuple[FileInfo, str]]:
-    """Yield (info, text) for every indexable text file, in sorted order."""
+def iter_repo(root: Path, stats: dict[str, bool] | None = None) -> Iterator[tuple[FileInfo, str]]:
+    """Yield (info, text) for every indexable text file, in sorted order.
+
+    When the size limits stop the walk early, `stats["truncated"]` is set to True."""
     total = 0
     count = 0
     for dirpath, dirnames, filenames in os.walk(root, followlinks=False):
@@ -115,6 +119,8 @@ def iter_repo(root: Path) -> Iterator[tuple[FileInfo, str]]:
             total += size
             count += 1
             if count > MAX_FILES or total > MAX_TOTAL_BYTES:
+                if stats is not None:
+                    stats["truncated"] = True
                 return
             text = data.decode("utf-8", errors="replace")
             rel = os.path.relpath(full, root).replace(os.sep, "/")

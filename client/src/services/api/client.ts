@@ -83,7 +83,7 @@ export async function request<T>(method: string, path: string, opts: RequestOpti
     });
   } catch (err) {
     if (err instanceof DOMException && err.name === 'AbortError') throw err;
-    throw new ApiError(0, 'network_error', `Can't reach the DevForge API at ${API_URL}. Check that it is running.`);
+    throw new ApiError(0, 'network_error', `Can't reach the DevForge API at ${API_URL}. If it runs on free hosting it may be waking up: wait a minute and try again. Otherwise check that the API is running and allows this site's address (CORS_ORIGINS).`);
   }
 
   if (!res.ok) {
