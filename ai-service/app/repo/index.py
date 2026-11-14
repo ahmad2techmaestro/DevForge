@@ -52,6 +52,7 @@ class RepoIndex:
     bm25: BM25Index
     _health: dict[str, object] | None = field(default=None, repr=False)
     _graph: dict[str, list[dict[str, object]]] | None = field(default=None, repr=False)
+    truncated: bool = False
     _intel: object | None = field(default=None, repr=False)
     _semantic: object | None = field(default=None, repr=False)
 
@@ -59,10 +60,13 @@ class RepoIndex:
     def from_dir(cls, root: Path) -> RepoIndex:
         files: list[FileInfo] = []
         texts: dict[str, str] = {}
-        for info, text in iter_repo(root):
+        stats: dict[str, bool] = {}
+        for info, text in iter_repo(root, stats):
             files.append(info)
             texts[info.path] = text
-        return cls(root, files, texts, BM25Index(texts))
+        idx = cls(root, files, texts, BM25Index(texts))
+        idx.truncated = bool(stats.get("truncated"))
+        return idx
 
     def by_path(self, path: str) -> FileInfo | None:
         return next((f for f in self.files if f.path == path), None)
@@ -129,6 +133,8 @@ class RepoIndex:
         readme = next((t for p, t in self.texts.items() if p.lower().startswith("readme")), "")
         intro = next((ln.strip("# ").strip() for ln in readme.splitlines() if ln.strip()), "")
         parts = [f"{len(self.files)} files, {total} lines."]
+        if self.truncated:
+            parts.append("Large repository: only the first files were indexed (size limit).")
         if langs:
             parts.append(f"Main languages: {', '.join(langs[:3])}.")
         if top:

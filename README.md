@@ -216,10 +216,13 @@ A free demo setup: web client on Netlify, API and agent on Render, MongoDB on At
 
 1. **MongoDB:** create a free cluster on [MongoDB Atlas](https://www.mongodb.com/atlas), add a database user, allow access from anywhere (Render's free IPs change), and copy the connection string.
 2. **Render:** New, Blueprint, pick this repository. Render asks for three values: `MONGO_URL` (step 1), `ENCRYPTION_KEY` (run `node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"`), and `GEMINI_API_KEY`. Everything else, including the shared internal key and JWT secret, is generated.
-3. **Netlify:** link this repository to the site. The build settings come from `netlify.toml`.
-4. Open the Netlify URL, create an account and connect a repository.
+3. **Web client:** deploy the `client/` folder on Vercel (Root Directory `client`, environment variable `VITE_API_URL` set to your API URL, `client/vercel.json` handles page refreshes) or on Netlify (`netlify.toml` holds the settings).
+4. **Allow the site on the API:** set `CORS_ORIGINS` on the API service to your web address, for example `https://your-app.vercel.app`. A `*` works as a wildcard for preview URLs.
+5. Open the web URL, create an account and connect a repository.
 
-The service names in `render.yaml` and `netlify.toml` decide the public URLs. If you rename them, update `AGENT_URL`, `API_PUBLIC_URL`, `OAUTH_REDIRECT_BASE`, `WEB_ORIGIN`, `CORS_ORIGINS` and `VITE_API_URL` to match.
+The service names in `render.yaml` and `netlify.toml` decide the public URLs. If you rename them, update `AGENT_URL`, `API_PUBLIC_URL`, `OAUTH_REDIRECT_BASE`, `WEB_ORIGIN`, `CORS_ORIGINS` and `VITE_API_URL` (a Vite variable, so redeploy the client after changing it) to match.
+
+Large repositories are indexed up to `MAX_INDEX_FILES` and `MAX_INDEX_MB` (set to 3000 files and 40 MB in `render.yaml` for the free plan's 512 MB of memory).
 
 Free tiers sleep after 15 minutes without traffic, so the first request can take about a minute. Render has no Docker daemon, so the agent runs code in a local process **without isolation** (`SANDBOX=subprocess`). Treat this deployment as a private demo: do not share the URL widely and do not connect repositories that hold secrets. For real use, run the agent on a machine with Docker and `SANDBOX=docker`.
 

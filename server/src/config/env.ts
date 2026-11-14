@@ -1,5 +1,14 @@
 import { z } from 'zod';
 
+/** CORS origin list entries may use `*` as a wildcard, e.g. https://*.vercel.app for preview deployments. */
+export function corsMatchers(origins: string[]): (string | RegExp)[] {
+  const escape = (part: string): string => part.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  return origins.map((o) => {
+    const clean = o.replace(/\/+$/, '');
+    return clean.includes('*') ? new RegExp(`^${clean.split('*').map(escape).join('[a-z0-9-]+')}$`, 'i') : clean;
+  });
+}
+
 const bool = z
   .enum(['true', 'false', '1', '0'])
   .transform((v) => v === 'true' || v === '1');

@@ -75,11 +75,28 @@ def _is_network_error(msg: str) -> bool:
     return any(k in m for k in ("getaddrinfo", "could not resolve host", "unable to access", "timed out", "connection reset"))
 
 
+def _friendly_clone_error(err: ApiError, has_token: bool, branch: str | None) -> ApiError:
+    m = str(err.message).lower()
+    missing_repo = "not found" in m and "branch" not in m
+    if "could not read username" in m or "authentication failed" in m or missing_repo:
+        hint = (
+            "The token was not accepted or has no access to this repository."
+            if has_token
+            else "Check the address. For a private repository, add a GitHub token in Settings."
+        )
+        return ApiError(422, "repo_not_found", f"Repository not found or not accessible. {hint}")
+    if "remote branch" in m and "not found" in m:
+        return ApiError(422, "branch_not_found", f"Branch '{branch}' does not exist in this repository.")
+    return err
+
+
 async def clone(url: str, dest: Path, branch: str | None, token: str | None) -> None:
     if dest.exists():
         shutil.rmtree(dest)
     dest.parent.mkdir(parents=True, exist_ok=True)
-    args = ["clone", "--quiet"]
+    # Shallow, single-branch: nothing here reads history, and a full clone of a large repository
+    # is slow and fills the disk of small hosts.
+    args = ["clone", "--quiet", "--depth", "1", "--single-branch", "--no-tags"]
     if branch:
         args += ["--branch", branch]
     last: ApiError | None = None
@@ -90,7 +107,7 @@ async def clone(url: str, dest: Path, branch: str | None, token: str | None) -> 
             break
         except ApiError as err:
             if not _is_network_error(str(err.message)):
-                raise
+                raise _friendly_clone_error(err, bool(token), branch) from err
             last = err
             if dest.exists():
                 shutil.rmtree(dest, ignore_errors=True)
