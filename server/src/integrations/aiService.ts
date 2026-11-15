@@ -32,6 +32,15 @@ export interface Usage {
 export class AgentClient {
   constructor(private readonly config: Pick<Config, 'agentUrl' | 'internalKey' | 'agentTimeoutMs' | 'agentLongTimeoutMs' | 'agentIndexTimeoutMs'>) {}
 
+  /** Host only, so an error never carries credentials or paths. */
+  private host(): string {
+    try {
+      return new URL(this.config.agentUrl).host;
+    } catch {
+      return 'invalid AGENT_URL';
+    }
+  }
+
   private async request<T>(method: string, path: string, body?: unknown, timeoutMs = this.config.agentTimeoutMs): Promise<T> {
     let res: Response;
     try {
@@ -46,7 +55,7 @@ export class AgentClient {
       });
     } catch (err) {
       const timedOut = err instanceof Error && (err.name === 'TimeoutError' || err.name === 'AbortError');
-      throw new AppError(502, 'agent_unavailable', timedOut ? 'Agent service timed out' : 'Agent service is unreachable');
+      throw new AppError(502, 'agent_unavailable', timedOut ? `Agent service timed out (${this.host()})` : `Agent service is unreachable (${this.host()})`);
     }
     const text = await res.text();
     let parsed: unknown;
@@ -58,7 +67,11 @@ export class AgentClient {
     if (!res.ok) {
       const err = (parsed as { error?: { code?: string; message?: string } }).error;
       const status = res.status >= 500 ? 502 : res.status;
-      throw new AppError(status, err?.code ?? 'agent_error', err?.message ?? `Agent service returned ${res.status}`);
+      const gateway = res.status === 502 || res.status === 503 || res.status === 504;
+      const fallback = gateway
+        ? `Agent service returned ${res.status} (${this.host()}). It is not running, still starting up, or AGENT_URL points to the wrong address.`
+        : `Agent service returned ${res.status}`;
+      throw new AppError(status, err?.code ?? 'agent_error', err?.message ?? fallback);
     }
     return parsed as T;
   }

@@ -6,7 +6,7 @@
 
 [build.environment]
   NODE_VERSION = "22"
-  VITE_API_URL = "https://ahmad-devforge-api.onrender.com"
+  VITE_API_URL = "https://devforge-api.onrender.com"
 
 # Single-page app: send every path to index.html.
 [[redirects]]
