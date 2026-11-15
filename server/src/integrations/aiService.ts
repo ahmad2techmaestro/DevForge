@@ -68,7 +68,10 @@ export class AgentClient {
       const err = (parsed as { error?: { code?: string; message?: string } }).error;
       const status = res.status >= 500 ? 502 : res.status;
       const gateway = res.status === 502 || res.status === 503 || res.status === 504;
-      const fallback = gateway
+      const wrongAddress = res.status === 404 && !err;
+      const fallback = wrongAddress
+        ? `Agent service returned 404 (${this.host()}). That address is not the agent. Copy the exact URL shown on the agent service's page in your hosting dashboard (hosts often add letters to the name) into AGENT_URL.`
+        : gateway
         ? `Agent service returned ${res.status} (${this.host()}). It is not running, still starting up, or AGENT_URL points to the wrong address.`
         : `Agent service returned ${res.status}`;
       throw new AppError(status, err?.code ?? 'agent_error', err?.message ?? fallback);

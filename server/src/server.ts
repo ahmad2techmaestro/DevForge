@@ -12,6 +12,12 @@ async function main(): Promise<void> {
   const server = app.listen(config.port, config.host, () => log.info({ port: config.port, db: config.dbDriver }, 'devforge api listening'));
   container.hub.attach(server);
 
+  // Say in the log whether the agent can be reached, so a wrong AGENT_URL shows up at startup.
+  void container.agent
+    .health()
+    .then((h) => log.info({ provider: h.provider, model: h.model, sandbox: h.sandbox }, 'agent service reachable'))
+    .catch((err: unknown) => log.warn({ reason: err instanceof Error ? err.message : String(err) }, 'agent service NOT reachable: check AGENT_URL'));
+
   let closing = false;
   const shutdown = async (signal: string): Promise<void> => {
     if (closing) return;

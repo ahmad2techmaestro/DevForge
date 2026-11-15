@@ -40,7 +40,7 @@ Environment variables:
 | `MAX_INDEX_FILES` | `3000` |
 | `MAX_INDEX_MB` | `40` |
 
-After it deploys, open `https://<your-agent>.onrender.com/health`. It should show `{"status":"ok", ...}`. Copy that address for step 3.
+After it deploys, copy the address shown at the top of its page (it looks like `https://devforge-agent-ab12.onrender.com`), open it with `/health` added, and check it shows `{"status":"ok", ...}`. You need this exact address in step 3.
 
 ## 3. API service (Render)
 
@@ -53,7 +53,7 @@ You already have `devforge-api`. Its environment variables must be:
 | `DB_DRIVER` | `mongo` |
 | `MONGO_URL` | your Atlas connection string |
 | `REDIS_URL` | the **Internal** URL of your Render Key Value instance |
-| `AGENT_URL` | the agent address from step 2, for example `https://devforge-agent.onrender.com` (no trailing path) |
+| `AGENT_URL` | the **exact** address shown at the top of the agent service's page in Render. Render often adds letters to the name (for example `https://devforge-agent-ab12.onrender.com`), so do not type it from memory. No trailing path. |
 | `INTERNAL_KEY` | the **same** value as on the agent |
 | `JWT_SECRET` | from step 1 |
 | `ENCRYPTION_KEY` | from step 1 |
@@ -70,7 +70,7 @@ Vercel or Netlify, root directory `client`, with one environment variable:
 
 | Name | Value |
 |---|---|
-| `VITE_API_URL` | the API address, for example `https://devforge-api.onrender.com` |
+| `VITE_API_URL` | the exact API address shown on the API service's page in Render |
 
 This is a build-time variable. After changing it, redeploy the client.
 
@@ -85,6 +85,17 @@ This is a build-time variable. After changing it, redeploy the client.
 | agent address (set by compose) | `AGENT_URL` on the API |
 | Mongo and Redis (set by compose) | `MONGO_URL` and `REDIS_URL` |
 | `SANDBOX=docker` | `SANDBOX=subprocess` |
+
+## If Settings says the agent is unreachable
+
+| Message | Cause |
+|---|---|
+| `returned 404 (host)... That address is not the agent` | `AGENT_URL` points to an address that does not exist. Copy the real one from the agent's page. |
+| `returned 502 (host)` | The agent is stopped, still starting, or crashed. Open its Logs. |
+| `is unreachable (host)` | The address cannot be reached at all, or has a typo. |
+| `timed out (host)` | The free agent is waking up. Wait a minute and refresh. |
+
+The API log also prints `agent service reachable` or `agent service NOT reachable` right after it starts.
 
 ## Checking it works
 
