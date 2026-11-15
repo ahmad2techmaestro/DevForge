@@ -24,6 +24,18 @@ describe('hosted configuration defaults', () => {
 });
 
 describe('agent client errors', () => {
+  it('tells the operator to copy the real address when the host answers 404', async () => {
+    const srv = createServer((_req, res) => {
+      res.statusCode = 404;
+      res.end('Not Found');
+    });
+    await new Promise<void>((r) => srv.listen(0, '127.0.0.1', r));
+    const port = (srv.address() as AddressInfo).port;
+    const client = new AgentClient({ agentUrl: `http://127.0.0.1:${port}`, internalKey: 'k', agentTimeoutMs: 2000, agentLongTimeoutMs: 2000, agentIndexTimeoutMs: 2000 });
+    await expect(client.health()).rejects.toThrow(/not the agent.*AGENT_URL/);
+    srv.close();
+  });
+
   it('explains a 502 from a gateway and names the host only', async () => {
     const srv = createServer((_req, res) => {
       res.statusCode = 502;
