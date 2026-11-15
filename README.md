@@ -212,7 +212,7 @@ Signatures (`X-Hub-Signature-256`) are verified over the raw body with a constan
 
 ## Deploying
 
-A free demo setup: web client on Netlify, API and agent on Render, MongoDB on Atlas. The files `netlify.toml` and `render.yaml` hold the configuration.
+A free demo setup: web client on Netlify, API and agent on Render, MongoDB on Atlas. The files `netlify.toml` and `render.yaml` hold the configuration. For a step-by-step guide with every environment variable, see [docs/DEPLOY.md](docs/DEPLOY.md).
 
 1. **MongoDB:** create a free cluster on [MongoDB Atlas](https://www.mongodb.com/atlas), add a database user, allow access from anywhere (Render's free IPs change), and copy the connection string.
 2. **Render:** New, Blueprint, pick this repository. Render asks for three values: `MONGO_URL` (step 1), `ENCRYPTION_KEY` (run `node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"`), and `GEMINI_API_KEY`. Everything else, including the shared internal key and JWT secret, is generated.

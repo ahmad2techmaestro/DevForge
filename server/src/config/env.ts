@@ -109,6 +109,12 @@ export function loadConfig(source: NodeJS.ProcessEnv = process.env): Config {
   for (const [k, v] of Object.entries(source)) {
     if (v !== undefined && v !== '') cleaned[k] = v;
   }
+  // Hosted defaults so a missing variable does not silently break the deployment.
+  if (!cleaned.API_PUBLIC_URL && cleaned.RENDER_EXTERNAL_URL) cleaned.API_PUBLIC_URL = cleaned.RENDER_EXTERNAL_URL;
+  if (!cleaned.CORS_ORIGINS && cleaned.WEB_ORIGIN) cleaned.CORS_ORIGINS = cleaned.WEB_ORIGIN;
+  if (cleaned.RENDER && !cleaned.AGENT_URL) {
+    throw new ConfigError('AGENT_URL is not set. Set it to the public address of the agent service, for example https://devforge-agent.onrender.com');
+  }
   const parsed = EnvSchema.safeParse(cleaned);
   if (!parsed.success) {
     const lines = parsed.error.issues.map((i) => `  ${i.path.join('.')}: ${i.message}`);

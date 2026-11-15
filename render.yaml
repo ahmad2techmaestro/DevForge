@@ -7,7 +7,7 @@
 #   GEMINI_API_KEY  key from aistudio.google.com
 services:
   - type: web
-    name: ahmad-devforge-api
+    name: devforge-api
     runtime: docker
     dockerfilePath: ./server/Dockerfile
     dockerContext: ./server
@@ -33,11 +33,11 @@ services:
           name: devforge-redis
           property: connectionString
       - key: AGENT_URL
-        value: https://ahmad-devforge-agent.onrender.com
+        value: https://devforge-agent.onrender.com
       - key: API_PUBLIC_URL
-        value: https://ahmad-devforge-api.onrender.com
+        value: https://devforge-api.onrender.com
       - key: OAUTH_REDIRECT_BASE
-        value: https://ahmad-devforge-api.onrender.com
+        value: https://devforge-api.onrender.com
       - key: WEB_ORIGIN
         value: https://devforget.vercel.app
       # Comma separated. `*` works as a wildcard, e.g. https://devforget-*.vercel.app for previews.
@@ -54,7 +54,7 @@ services:
         sync: false
 
   - type: web
-    name: ahmad-devforge-agent
+    name: devforge-agent
     runtime: docker
     dockerfilePath: ./ai-service/Dockerfile
     dockerContext: ./ai-service
@@ -82,7 +82,7 @@ services:
       - key: INTERNAL_KEY
         fromService:
           type: web
-          name: ahmad-devforge-api
+          name: devforge-api
           envVarKey: INTERNAL_KEY
 
   - type: keyvalue

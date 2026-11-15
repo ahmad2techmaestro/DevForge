@@ -126,7 +126,7 @@ export function SettingsPage() {
           )}
           {agent && !agent.reachable && (
             <p className="mt-4 text-xs text-bad">
-              The server cannot reach the agent service{agent.error ? ` (${agent.error})` : ''}. Check the <code className="font-mono">ai-service</code> lines in the terminal running <code className="font-mono">npm run dev</code>, then refresh this page.
+              The server cannot reach the agent service{agent.error ? ` (${agent.error})` : ''}. On a hosted setup, check that the agent service is running and that <code className="font-mono">AGENT_URL</code> on the API matches its address. Running locally, check the <code className="font-mono">ai-service</code> lines in the terminal, then refresh this page.
             </p>
           )}
           {agent?.provider === 'mock' && <p className="mt-4 text-xs text-muted">The offline demo model is active. Set <code className="font-mono text-accent2">LLM_PROVIDER=gemini</code> and <code className="font-mono text-accent2">GEMINI_API_KEY</code> (or Groq, OpenAI, Anthropic, Ollama) in the root <code className="font-mono text-accent2">.env</code>, then restart.</p>}
